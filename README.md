@@ -108,8 +108,6 @@ The application screens stocks based on several key Islamic finance principles:
 
 ## 🤝 Contributing
 
-We welcome contributions! Please follow these steps:
-
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
 3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
@@ -133,12 +131,6 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 - Open source community
 - Muslim developer community
 
-## 📞 Support
-
-If you have questions or need support:
-- Create an issue on GitHub
-- Email: [your-email@example.com]
-- Documentation: [Link to detailed docs]
 
 ## 🔄 Roadmap
 
