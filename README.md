@@ -154,5 +154,3 @@ If you have questions or need support:
 This tool is for informational purposes only. While we strive for accuracy in our screening criteria, we recommend consulting with qualified Islamic finance scholars before making investment decisions. The application's screening is based on commonly accepted Islamic finance principles but may not reflect all scholarly opinions.
 
 ---
-
-**Made with ❤️ for the Muslim community**
