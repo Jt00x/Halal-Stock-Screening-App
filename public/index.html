@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Halal Stock Screener - Enhanced</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .auth-section {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        input, button, select {
+            padding: 12px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 8px;
+            width: 100%;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+        
+        input, select {
+            color: black;
+        }
+        
+        button {
+            background: #28a745;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background: #218838;
+        }
+        
+        button:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+        
+        .mode-selector {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .mode-toggle {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .mode-btn {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+        
+        .mode-btn.active {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: white;
+            font-weight: bold;
+        }
+        
+        .mode-info {
+            margin-top: 10px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+        
+        .result {
+            background: white;
+            color: black;
+            padding: 25px;
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+        
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .company-info h2 {
+            margin-bottom: 5px;
+            color: #333;
+        }
+        
+        .company-info p {
+            color: #666;
+            margin-bottom: 3px;
+        }
+        
+        .verdicts {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .verdict {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin: 5px 0;
+            font-weight: bold;
+            text-align: center;
+            min-width: 140px;
+        }
+        
+        .halal { background: #d4edda; color: #155724; }
+        .haram { background: #f8d7da; color: #721c24; }
+        .mixed { background: #fff3cd; color: #856404; }
+        .boycott { background: #f8d7da; color: #721c24; border: 2px solid #dc3545; }
+        .clear { background: #d4edda; color: #155724; }
+        
+        .financial-ratios {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .ratio-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .ratio-value {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .ratio-label {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+        
+        .ratio-status {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .pass { background: #d4edda; color: #155724; }
+        .fail { background: #f8d7da; color: #721c24; }
+        
+        .recommendations {
+            background: #e3f2fd;
+            border: 1px solid #2196f3;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .recommendations h3 {
+            color: #1976d2;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .recommendation-list {
+            display: grid;
+            gap: 10px;
+        }
+        
+        .recommendation-item {
+            background: white;
+            padding: 12px;
+            border-radius: 8px;
+            border-left: 4px solid #2196f3;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .recommendation-item:hover {
+            background: #f5f5f5;
+        }
+        
+        .recommendation-ticker {
+            font-weight: bold;
+            color: #1976d2;
+            margin-bottom: 3px;
+        }
+        
+        .recommendation-name {
+            color: #333;
+            font-size: 14px;
+            margin-bottom: 3px;
+        }
+        
+        .recommendation-reason {
+            color: #666;
+            font-size: 12px;
+        }
+        
+        .boycott-alert {
+            background: #f8d7da;
+            border: 2px solid #dc3545;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .boycott-alert h3 {
+            color: #721c24;
+            margin-bottom: 15px;
+        }
+        
+        .boycott-reasons {
+            list-style: none;
+            margin-bottom: 15px;
+        }
+        
+        .boycott-reasons li {
+            color: #721c24;
+            margin-bottom: 8px;
+            padding-left: 20px;
+            position: relative;
+        }
+        
+        .boycott-reasons li:before {
+            content: "⚠️";
+            position: absolute;
+            left: 0;
+        }
+        
+        .boycott-sources {
+            font-size: 12px;
+            color: #666;
+            font-style: italic;
+        }
+        
+        .mode-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-left: 8px;
+        }
+        
+        .mode-badge.standard {
+            background: #007bff;
+            color: white;
+        }
+        
+        .mode-badge.strict {
+            background: #28a745;
+            color: white;
+        }
+        
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        
+        .examples {
+            margin: 15px 0;
+        }
+        
+        .example-btn {
+            width: auto;
+            margin: 3px;
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+        
+        @media (max-width: 768px) {
+            .result-header {
+                flex-direction: column;
+            }
+            
+            .verdicts {
+                width: 100%;
+            }
+            
+            .mode-toggle {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1 style="text-align: center; margin-bottom: 30px;">🕌 Halal Stock Screener</h1>
+    
+    <!-- Authentication Section -->
+    <div id="authSection" class="auth-section">
+        <h2>Login or Register</h2>
+        
+        <div id="loginForm">
+            <h3>Login</h3>
+            <input type="email" id="loginEmail" placeholder="Email" required>
+            <input type="password" id="loginPassword" placeholder="Password" required>
+            <button onclick="login()">Login</button>
+            <p><a href="#" onclick="showRegister()" style="color: white;">Don't have an account? Register</a></p>
+        </div>
+        
+        <div id="registerForm" class="hidden">
+            <h3>Register</h3>
+            <input type="email" id="registerEmail" placeholder="Email" required>
+            <input type="password" id="registerPassword" placeholder="Password (min 6 chars)" required>
+            <label style="color: white; font-size: 14px;">Preferred Screening Mode:</label>
+            <select id="registerMode">
+                <option value="standard">Standard Mode (AAOIFI Guidelines)</option>
+                <option value="strict">Strict Mode (Conservative Scholars)</option>
+            </select>
+            <button onclick="register()">Register</button>
+            <p><a href="#" onclick="showLogin()" style="color: white;">Already have an account? Login</a></p>
+        </div>
+    </div>
+    
+    <!-- User Info Section -->
+    <div id="userSection" class="auth-section hidden">
+        <h3>Welcome, <span id="userEmail"></span>!</h3>
+        <p>Subscription: <strong id="userTier">Free</strong> | Mode: <strong id="userMode">Standard</strong> | API Calls: <span id="apiCalls">0</span>/10</p>
+        <button onclick="logout()">Logout</button>
+    </div>
+    
+    <!-- Screening Mode Selector -->
+    <div class="mode-selector">
+        <h3>📏 Screening Mode</h3>
+        <div class="mode-toggle">
+            <div class="mode-btn active" id="standardBtn" onclick="setMode('standard')">
+                📊 Standard Mode
+            </div>
+            <div class="mode-btn" id="strictBtn" onclick="setMode('strict')">
+                🔒 Strict Mode
+            </div>
+        </div>
+        <div class="mode-info" id="modeInfo">
+            <strong>Standard Mode (AAOIFI Guidelines):</strong><br>
+            • Debt < 33% of market cap<br>
+            • Cash/interest securities < 33%<br>
+            • Non-halal revenue < 5%<br>
+            Used by most Islamic banks and scholars globally.
+        </div>
+    </div>
+    
+    <!-- Stock Screening Section -->
+    <div class="container">
+        <h2>Stock Screening</h2>
+        <input type="text" id="tickerInput" placeholder="Enter stock ticker (e.g., AAPL, TSLA, IBM)">
+        <button onclick="screenStock()" id="screenBtn">Screen Stock</button>
+        
+        <div class="examples">
+            <strong>Examples by Category:</strong><br>
+            <strong>✅ Clean Tech:</strong>
+            <button onclick="searchExample('AAPL')" class="example-btn">AAPL</button>
+            <button onclick="searchExample('NVDA')" class="example-btn">NVDA</button>
+            <button onclick="searchExample('AMD')" class="example-btn">AMD</button><br>
+            
+            <strong>⚠️ Mixed:</strong>
+            <button onclick="searchExample('COST')" class="example-btn">COST</button>
+            <button onclick="searchExample('WMT')" class="example-btn">WMT</button><br>
+            
+            <strong>❌ Haram:</strong>
+            <button onclick="searchExample('JPM')" class="example-btn">JPM</button>
+            <button onclick="searchExample('V')" class="example-btn">V</button><br>
+            
+            <strong>⛔ Boycott:</strong>
+            <button onclick="searchExample('MCD')" class="example-btn">MCD</button>
+            <button onclick="searchExample('MSFT')" class="example-btn">MSFT</button>
+        </div>
+        
+        <div id="results"></div>
+    </div>
+    
+    <script>
+        let authToken = localStorage.getItem('authToken');
+        let currentUser = null;
+        let currentMode = 'standard';
+        
+        // Initialize
+        if (authToken) {
+            loadUserProfile();
+        }
+        
+        function showRegister() {
+            document.getElementById('loginForm').classList.add('hidden');
+            document.getElementById('registerForm').classList.remove('hidden');
+        }
+        
+        function showLogin() {
+            document.getElementById('registerForm').classList.add('hidden');
+            document.getElementById('loginForm').classList.remove('hidden');
+        }
+        
+        function setMode(mode) {
+            currentMode = mode;
+            
+            // Update UI
+            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(mode + 'Btn').classList.add('active');
+            
+            // Update info text
+            const modeInfo = document.getElementById('modeInfo');
+            if (mode === 'strict') {
+                modeInfo.innerHTML = `
+                    <strong>Strict Mode (Conservative Scholars):</strong><br>
+                    • Debt < 5% of market cap (almost debt-free)<br>
+                    • Cash/interest securities < 10%<br>
+                    • Non-halal revenue < 1%<br>
+                    Follows more conservative scholarly opinions for ultra-careful investors.
+                `;
+            } else {
+                modeInfo.innerHTML = `
+                    <strong>Standard Mode (AAOIFI Guidelines):</strong><br>
+                    • Debt < 33% of market cap<br>
+                    • Cash/interest securities < 33%<br>
+                    • Non-halal revenue < 5%<br>
+                    Used by most Islamic banks and scholars globally.
+                `;
+            }
+            
+            // Update user's preferred mode if logged in
+            if (authToken) {
+                updateUserMode(mode);
+            }
+        }
+        
+        async function updateUserMode(mode) {
+            try {
+                await fetch('/api/user/screening-mode', {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({ screening_mode: mode })
+                });
+            } catch (error) {
+                console.error('Failed to update user mode:', error);
+            }
+        }
+        
+        async function register() {
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const screening_mode = document.getElementById('registerMode').value;
+            
+            if (!email || !password) {
+                showMessage('Please fill in all fields', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password, screening_mode })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    authToken = data.token;
+                    currentUser = data.user;
+                    localStorage.setItem('authToken', authToken);
+                    showUserSection();
+                    setMode(data.user.screening_mode);
+                    showMessage('Registration successful!', 'success');
+                } else {
+                    showMessage(data.error, 'error');
+                }
+            } catch (error) {
+                showMessage('Registration failed: ' + error.message, 'error');
+            }
+        }
+        
+        async function login() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            if (!email || !password) {
+                showMessage('Please fill in all fields', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    authToken = data.token;
+                    currentUser = data.user;
+                    localStorage.setItem('authToken', authToken);
+                    showUserSection();
+                    setMode(data.user.screening_mode || 'standard');
+                    showMessage('Login successful!', 'success');
+                } else {
+                    showMessage(data.error, 'error');
+                }
+            } catch (error) {
+                showMessage('Login failed: ' + error.message, 'error');
+            }
+        }
+        
+        async function loadUserProfile() {
+            try {
+                const response = await fetch('/api/user/profile', {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    currentUser = data.user;
+                    showUserSection();
+                    setMode(data.user.screening_mode || 'standard');
+                } else {
+                    logout();
+                }
+            } catch (error) {
+                logout();
+            }
+        }
+        
+        function showUserSection() {
+            document.getElementById('authSection').classList.add('hidden');
+            document.getElementById('userSection').classList.remove('hidden');
+            
+            if (currentUser) {
+                document.getElementById('userEmail').textContent = currentUser.email;
+                document.getElementById('userTier').textContent = currentUser.subscription_tier;
+                document.getElementById('userMode').textContent = currentUser.screening_mode || 'Standard';
+                document.getElementById('apiCalls').textContent = currentUser.api_calls_today || 0;
+            }
+        }
+        
+        function logout() {
+            authToken = null;
+            currentUser = null;
+            localStorage.removeItem('authToken');
+            
+            document.getElementById('authSection').classList.remove('hidden');
+            document.getElementById('userSection').classList.add('hidden');
+            document.getElementById('results').innerHTML = '';
+            showMessage('Logged out successfully', 'success');
+        }
+        
+        function searchExample(ticker) {
+            document.getElementById('tickerInput').value = ticker;
+            screenStock();
+        }
+        
+        async function screenStock() {
+            const ticker = document.getElementById('tickerInput').value.toUpperCase().trim();
+            
+            if (!ticker) {
+                showMessage('Please enter a stock ticker', 'error');
+                return;
+            }
+            
+            const resultsDiv = document.getElementById('results');
+            const screenBtn = document.getElementById('screenBtn');
+            
+            resultsDiv.innerHTML = '<p>🔍 Screening stock...</p>';
+            screenBtn.disabled = true;
+            screenBtn.textContent = 'Screening...';
+            
+            try {
+                const headers = authToken ? { 'Authorization': `Bearer ${authToken}` } : {};
+                const response = await fetch(`/api/screen/${ticker}?mode=${currentMode}`, { headers });
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Failed to screen stock');
+                }
+                
+                const data = await response.json();
+                displayResults(data);
+                
+                // Update user API count if logged in
+                if (currentUser) {
+                    currentUser.api_calls_today = (currentUser.api_calls_today || 0) + 1;
+                    document.getElementById('apiCalls').textContent = currentUser.api_calls_today;
+                }
+                
+            } catch (error) {
+                showMessage('Error: ' + error.message, 'error');
+                resultsDiv.innerHTML = '';
+            } finally {
+                screenBtn.disabled = false;
+                screenBtn.textContent = 'Screen Stock';
+            }
+        }
+        
+        function displayResults(data) {
+            const resultsDiv = document.getElementById('results');
+            
+            // Mode badge
+            const modeBadge = `<span class="mode-badge ${data.screening_mode}">${data.screening_mode.toUpperCase()}</span>`;
+            
+            // Boycott alert
+            let boycottAlert = '';
+            if (data.boycott_verdict.details && data.boycott_verdict.details.is_boycotted) {
+                boycottAlert = `
+                    <div class="boycott-alert">
+                        <h3>🚨 Boycott Alert</h3>
+                        <ul class="boycott-reasons">
+                            ${data.boycott_verdict.details.reasons.map(reason => `<li>${reason}</li>`).join('')}
+                        </ul>
+                        <p class="boycott-sources">Sources: ${data.boycott_verdict.details.sources.join(', ')}</p>
+                    </div>
+                `;
+            }
+            
+            // Recommendations
+            let recommendationsHtml = '';
+            if (data.recommendations && data.recommendations.length > 0) {
+                const recommendationType = data.screening_mode === 'strict' ? 'Strict Mode' : 'Similar';
+                recommendationsHtml = `
+                    <div class="recommendations">
+                        <h3>💡 ${recommendationType} Recommendations</h3>
+                        <div class="recommendation-list">
+                            ${data.recommendations.map(rec => `
+                                <div class="recommendation-item" onclick="searchExample('${rec.ticker}')">
+                                    <div class="recommendation-ticker">${rec.ticker}</div>
+                                    <div class="recommendation-name">${rec.name}</div>
+                                    <div class="recommendation-reason">${rec.reason}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Purification info
+            let purification = '';
+            if (data.purification_percentage > 0) {
+                purification = `
+                    <div style="background: #fff3cd; color: #856404; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                        <strong>💰 Purification Required:</strong> 
+                        Donate ${data.purification_percentage.toFixed(2)}% of your returns to charity.
+                    </div>
+                `;
+            }
+            
+            // Financial ratios with thresholds
+            const thresholds = data.shariah_verdict.thresholds || { debt: 33, cash: 33, revenue: 5 };
+            
+            resultsDiv.innerHTML = `
+                <div class="result">
+                    <div class="result-header">
+                        <div class="company-info">
+                            <h2>${data.company.name} (${data.company.ticker}) ${modeBadge}</h2>
+                            <p><strong>Price:</strong> ${data.price_data.current_price}</p>
+                            <p><strong>Sector:</strong> ${data.company.sector}</p>
+                            <p><strong>Industry:</strong> ${data.company.industry}</p>
+                        </div>
+                        <div class="verdicts">
+                            <div class="verdict ${data.shariah_verdict.status}">
+                                ${data.shariah_verdict.text}
+                            </div>
+                            <div class="verdict ${data.boycott_verdict.status === 'clear' ? 'clear' : 'boycott'}">
+                                ${data.boycott_verdict.text}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    ${boycottAlert}
+                    
+                    <h4>📊 Financial Ratios (${data.screening_mode.toUpperCase()} Mode Thresholds)</h4>
+                    <div class="financial-ratios">
+                        <div class="ratio-card">
+                            <div class="ratio-value" style="color: ${data.financial_ratios.debt_ratio < thresholds.debt ? '#28a745' : '#dc3545'}">
+                                ${data.financial_ratios.debt_ratio}%
+                            </div>
+                            <div class="ratio-label">Debt Ratio</div>
+                            <div class="ratio-status ${data.financial_ratios.debt_ratio < thresholds.debt ? 'pass' : 'fail'}">
+                                ${data.financial_ratios.debt_ratio < thresholds.debt ? '✅ Pass' : '❌ Fail'} (< ${thresholds.debt}%)
+                            </div>
+                        </div>
+                        
+                        <div class="ratio-card">
+                            <div class="ratio-value" style="color: ${data.financial_ratios.cash_ratio < thresholds.cash ? '#28a745' : '#dc3545'}">
+                                ${data.financial_ratios.cash_ratio}%
+                            </div>
+                            <div class="ratio-label">Cash Ratio</div>
+                            <div class="ratio-status ${data.financial_ratios.cash_ratio < thresholds.cash ? 'pass' : 'fail'}">
+                                ${data.financial_ratios.cash_ratio < thresholds.cash ? '✅ Pass' : '❌ Fail'} (< ${thresholds.cash}%)
+                            </div>
+                        </div>
+                        
+                        <div class="ratio-card">
+                            <div class="ratio-value" style="color: ${data.financial_ratios.non_halal_revenue < thresholds.revenue ? '#28a745' : '#dc3545'}">
+                                ${data.financial_ratios.non_halal_revenue}%
+                            </div>
+                            <div class="ratio-label">Non-Halal Revenue</div>
+                            <div class="ratio-status ${data.financial_ratios.non_halal_revenue < thresholds.revenue ? 'pass' : 'fail'}">
+                                ${data.financial_ratios.non_halal_revenue < thresholds.revenue ? '✅ Pass' : '❌ Fail'} (< ${thresholds.revenue}%)
+                            </div>
+                        </div>
+                        
+                        <div class="ratio-card">
+                            <div class="ratio-value" style="color: ${data.company.is_halal_business ? '#28a745' : '#dc3545'}">
+                                ${data.company.is_halal_business ? '✅' : '❌'}
+                            </div>
+                            <div class="ratio-label">Business Activity</div>
+                            <div class="ratio-status ${data.company.is_halal_business ? 'pass' : 'fail'}">
+                                ${data.company.is_halal_business ? 'Halal Business' : 'Haram Industry'}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    ${purification}
+                    ${recommendationsHtml}
+                    
+                    <div style="margin-top: 20px; padding: 10px; background: #f8f9fa; border-radius: 8px;">
+                        <small style="color: #666;">
+                            <strong>Screening Mode:</strong> ${data.screening_mode.charAt(0).toUpperCase() + data.screening_mode.slice(1)}<br>
+                            <strong>Data Source:</strong> ${data.data_source === 'alpha_vantage' ? 'Alpha Vantage (Real-time)' : 'Mock Data'}<br>
+                            <strong>Screened:</strong> ${new Date(data.screening_date).toLocaleString()}
+                        </small>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function showMessage(message, type) {
+            const div = document.createElement('div');
+            div.className = type;
+            div.textContent = message;
+            
+            const container = document.querySelector('.container');
+            container.insertBefore(div, container.firstChild);
+            
+            setTimeout(() => div.remove(), 5000);
+        }
+        
+        // Load strict recommendations on page load
+        async function loadStrictRecommendations() {
+            try {
+                const response = await fetch('/api/recommendations/strict');
+                const data = await response.json();
+                console.log('Strict mode recommendations loaded:', data);
+            } catch (error) {
+                console.error('Failed to load recommendations:', error);
+            }
+        }
+        
+        // Initialize recommendations
+        loadStrictRecommendations();
+    </script>
+</body>
+</html>
